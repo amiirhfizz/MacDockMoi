@@ -12,7 +12,7 @@ pub struct Config {
     pub genie: bool,
     /// Put every app icon on a macOS-style squircle tile.
     pub icon_tiles: bool,
-    /// Slide the dock away until the pointer touches the bottom edge (no space reserved for it).
+    /// Legacy option; dock visibility is now controlled by fullscreen detection.
     pub auto_hide: bool,
     /// Red unread badges from window titles and Action Center toasts.
     pub badges: bool,
@@ -71,7 +71,7 @@ impl Default for Config {
             menu_bar: true,
             genie: true,
             icon_tiles: true,
-            auto_hide: true,
+            auto_hide: false,
             badges: true,
             tray_icons: true,
             ai_usage: true,
@@ -105,7 +105,6 @@ impl Config {
         b("MenuBar", &mut c.menu_bar);
         b("Genie", &mut c.genie);
         b("IconTiles", &mut c.icon_tiles);
-        b("AutoHide", &mut c.auto_hide);
         b("Badges", &mut c.badges);
         b("TrayIcons", &mut c.tray_icons);
         b("AiUsage", &mut c.ai_usage);
