@@ -37,6 +37,7 @@ use std::cell::RefCell;
 
 use windows::core::w;
 use windows::Win32::Foundation::{GetLastError, ERROR_ALREADY_EXISTS, HWND, RECT};
+use windows::Win32::Graphics::Gdi::{GetMonitorInfoW, MONITORINFO};
 use windows::Win32::Graphics::Dwm::DwmFlush;
 use windows::Win32::System::Com::{CoInitializeEx, COINIT_APARTMENTTHREADED};
 use windows::Win32::System::Threading::CreateMutexW;
@@ -368,17 +369,29 @@ fn foreground_is_fullscreen() -> bool {
         if ["Progman", "WorkerW", "Shell_TrayWnd"].contains(&cls.as_str()) {
             return false;
         }
-        // anything with a title bar is not fullscreen, even when it covers the whole screen because no AppBar
-        // space is reserved; a fullscreen app sits exactly on the monitor without one. Not IsZoomed: Chrome and
-        // Edge keep WS_MAXIMIZE when a maximized window goes fullscreen (F11, YouTube), only the caption goes.
-        if GetWindowLongPtrW(fg, GWL_STYLE) & WS_CAPTION.0 as isize == WS_CAPTION.0 as isize {
+        // Compare against the monitor containing the foreground window. Do not reject
+        // WS_CAPTION: borderless games and F11 browser windows can retain that style bit.
+        let mut window_rect = RECT::default();
+        if GetWindowRect(fg, &mut window_rect).is_err() {
             return false;
         }
-        let mut r = RECT::default();
-        if GetWindowRect(fg, &mut r).is_err() {
+        let monitor = MonitorFromWindow(fg, MONITOR_DEFAULTTONEAREST);
+        if monitor.0.is_null() {
             return false;
         }
-        r.left == 0 && r.top == 0 && r.right == GetSystemMetrics(SM_CXSCREEN) && r.bottom == GetSystemMetrics(SM_CYSCREEN)
+        let mut info = MONITORINFO {
+            cbSize: std::mem::size_of::<MONITORINFO>() as u32,
+            ..Default::default()
+        };
+        if GetMonitorInfoW(monitor, &mut info).as_bool() == false {
+            return false;
+        }
+        let bounds = info.rcMonitor;
+        // A one-pixel tolerance avoids DPI rounding differences at monitor edges.
+        window_rect.left <= bounds.left + 1
+            && window_rect.top <= bounds.top + 1
+            && window_rect.right >= bounds.right - 1
+            && window_rect.bottom >= bounds.bottom - 1
     }
 }
 
