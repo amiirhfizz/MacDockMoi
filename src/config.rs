@@ -6,7 +6,8 @@ pub struct Config {
     pub pinned: Vec<String>,
     pub icon_size: f64,
     pub magnify: f64,
-    /// Hide the Windows taskbar only while a real fullscreen application is active.\n    pub hide_taskbar: bool,
+    /// Hide the Windows taskbar only while a real fullscreen application is active.
+    pub hide_taskbar: bool,
     pub menu_bar: bool,
     pub genie: bool,
     /// Put every app icon on a macOS-style squircle tile.
