@@ -913,7 +913,7 @@ Open the download page?")) {
         let mut pm = Pixmap::new(w, h).unwrap();
         // macOS 26: no bar at all, the content sits on the wallpaper. The bar's own pixels stay at alpha 1 so
         // the whole strip still takes clicks; hover / open highlights go on that layer, under the content.
-        pm.fill(Color::from_rgba8(0, 0, 0, 1));
+        pm.fill(Color::from_rgba8(0, 0, 0, 0));
         let mut content = Pixmap::new(w, h).unwrap();
         for (i, s) in self.slots.iter().enumerate() {
             let lit = if self.open == Some(i) { 0x40 } else if self.hover == Some(i) { 0x30 } else { 0 };
