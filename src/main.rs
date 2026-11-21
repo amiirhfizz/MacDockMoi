@@ -236,6 +236,11 @@ impl App {
                 }
             }
             Ev::MoveSizeEnd(h) => {
+                // Some games enter borderless fullscreen without changing foreground.
+                let fs = foreground_is_fullscreen();
+                if fs != self.fullscreen {
+                    self.set_fullscreen(fs);
+                }
                 if let Some(g) = self.genie.as_mut() {
                     g.on_foreground_or_moved(HWND(h as *mut _));
                 }
