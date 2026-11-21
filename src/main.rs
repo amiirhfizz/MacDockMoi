@@ -99,6 +99,8 @@ struct App {
     bar: Option<menubar::MenuBar>,
     fly: Option<flyout::Flyout>,
     fullscreen: bool,
+    /// Hide Explorer's taskbar only while a real fullscreen application is active.
+    hide_taskbar: bool,
 }
 
 impl App {
@@ -160,6 +162,13 @@ impl App {
         if on != self.fullscreen {
             self.fullscreen = on;
             self.dock.set_fullscreen_hidden(on);
+            if self.hide_taskbar {
+                if on {
+                    taskbar::hide();
+                } else {
+                    taskbar::restore(false);
+                }
+            }
             if let Some(g) = self.genie.as_mut() {
                 g.pause(on); // game mode: nothing of ours in the input path
             }
@@ -214,6 +223,9 @@ impl App {
                 }
             }
             Ev::Foreground(h) => {
+                if self.fullscreen && self.hide_taskbar {
+                    taskbar::keep_hidden();
+                }
                 self.keep_over_desktop(HWND(h as *mut _));
                 self.dock.on_foreground(HWND(h as *mut _));
                 if let Some(b) = self.bar.as_mut() {
@@ -417,9 +429,8 @@ Copy macdock.exe to a normal folder (for example %LOCALAPPDATA%\\Programs\\MacDo
         let _ = windows::Win32::System::Ole::OleInitialize(None); // drag and drop onto the dock
     }
     let cfg = Config::load();
-    if cfg.hide_taskbar {
-        taskbar::hide();
-    }
+    // HideTaskbar now means "hide only during fullscreen", never hide Explorer at startup.
+    let hide_taskbar = cfg.hide_taskbar;
     let hwnd = dock::create_window();
     dropfiles::register(hwnd);
     let genie = cfg.genie.then(genie::Genie::new);
@@ -429,11 +440,20 @@ Copy macdock.exe to a normal folder (for example %LOCALAPPDATA%\\Programs\\MacDo
     }
     let want_widgets = cfg.desktop_widgets;
     let want_switcher = cfg.app_switcher;
-    let mut app = App { dock: Dock::new(hwnd, cfg), genie, bar, fly: None, fullscreen: false };
+    let mut app = App {
+        dock: Dock::new(hwnd, cfg),
+        genie,
+        bar,
+        fly: None,
+        fullscreen: false,
+        hide_taskbar,
+    };
     if let Some(b) = app.bar.as_mut() {
         b.start(); // reserve the top strip before the dock measures the work area
     }
     app.dock.start();
+    // If MacDockMoi starts while a game/video is already fullscreen, apply the same policy immediately.
+    app.set_fullscreen(foreground_is_fullscreen());
     if want_widgets {
         widgets::start(); // after the bar and dock reserved their strips, so the work area is final
     }
