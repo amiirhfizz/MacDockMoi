@@ -220,6 +220,12 @@ impl App {
                 if self.hide_taskbar {
                     taskbar::keep_hidden();
                 }
+                // WinEvent foreground notifications are immediate; do not wait for the dock's
+                // slower refresh timer to notice a fullscreen game or video player.
+                let fs = foreground_is_fullscreen();
+                if fs != self.fullscreen {
+                    self.set_fullscreen(fs);
+                }
                 self.keep_over_desktop(HWND(h as *mut _));
                 self.dock.on_foreground(HWND(h as *mut _));
                 if let Some(b) = self.bar.as_mut() {
@@ -230,6 +236,11 @@ impl App {
                 }
             }
             Ev::MoveSizeEnd(h) => {
+                // Some games enter borderless fullscreen without changing foreground.
+                let fs = foreground_is_fullscreen();
+                if fs != self.fullscreen {
+                    self.set_fullscreen(fs);
+                }
                 if let Some(g) = self.genie.as_mut() {
                     g.on_foreground_or_moved(HWND(h as *mut _));
                 }
