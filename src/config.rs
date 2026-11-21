@@ -12,7 +12,7 @@ pub struct Config {
     pub genie: bool,
     /// Put every app icon on a macOS-style squircle tile.
     pub icon_tiles: bool,
-    /// Legacy option; dock visibility is now controlled by fullscreen detection.
+    /// Keep the dock hidden until the pointer reaches the bottom screen edge.
     pub auto_hide: bool,
     /// Red unread badges from window titles and Action Center toasts.
     pub badges: bool,
@@ -71,7 +71,7 @@ impl Default for Config {
             menu_bar: true,
             genie: true,
             icon_tiles: true,
-            auto_hide: false,
+            auto_hide: true,
             badges: true,
             tray_icons: true,
             ai_usage: true,
