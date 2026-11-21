@@ -1,4 +1,4 @@
-//! Hides the Windows taskbar while the dock runs and puts it back exactly as it was (port of Taskbar.cs).
+//! Temporarily hides the Windows taskbar during fullscreen apps and restores its previous state afterward.
 
 use std::cell::Cell;
 
