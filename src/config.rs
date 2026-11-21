@@ -70,7 +70,7 @@ impl Default for Config {
             menu_bar: true,
             genie: true,
             icon_tiles: true,
-            auto_hide: false,
+            auto_hide: true,
             badges: true,
             tray_icons: true,
             ai_usage: true,
