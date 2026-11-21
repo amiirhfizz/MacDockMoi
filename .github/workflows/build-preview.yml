@@ -1,0 +1,30 @@
+name: Build Windows executable
+
+on:
+  push:
+    branches: ["master"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install Rust (GNU)
+        shell: pwsh
+        run: |
+          rustup toolchain install stable-x86_64-pc-windows-gnu --profile minimal
+          rustup default stable-x86_64-pc-windows-gnu
+      - uses: Swatinem/rust-cache@v2
+      - name: Build
+        run: cargo build --release --locked
+      - name: Upload executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: MacDockMoi-0.3.2-Windows-x64
+          path: target/release/macdock.exe
+          if-no-files-found: error
+          retention-days: 14

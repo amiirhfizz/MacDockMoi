@@ -190,7 +190,7 @@ Settings live in `%APPDATA%\MacDock\config.json`, created on first run.
 | `Pinned` | Explorer, Chrome, Outlook, Terminal, VS Code, Discord, Settings | Dock items: `shell:AppsFolder\<AppID>`, a `.lnk` or an `.exe` |
 | `IconSize` | `52` | Icon size at rest, in pixels |
 | `Magnify` | `1.75` | Size of the icon under the pointer, relative to rest |
-| `AutoHide` | `false` | Slide the dock away until the pointer touches the bottom edge |
+| `AutoHide` | `true` | Slide the dock away until the pointer touches the bottom edge |
 | `Genie` | `true` | Genie minimize and restore |
 | `IconTiles` | `true` | Put every icon on a squircle tile |
 | `Badges` | `true` | Red unread badges |
