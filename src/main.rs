@@ -162,13 +162,6 @@ impl App {
         if on != self.fullscreen {
             self.fullscreen = on;
             self.dock.set_fullscreen_hidden(on);
-            if self.hide_taskbar {
-                if on {
-                    taskbar::hide();
-                } else {
-                    taskbar::restore(false);
-                }
-            }
             if let Some(g) = self.genie.as_mut() {
                 g.pause(on); // game mode: nothing of ours in the input path
             }
@@ -223,7 +216,7 @@ impl App {
                 }
             }
             Ev::Foreground(h) => {
-                if self.fullscreen && self.hide_taskbar {
+                if self.hide_taskbar {
                     taskbar::keep_hidden();
                 }
                 self.keep_over_desktop(HWND(h as *mut _));
@@ -429,7 +422,7 @@ Copy macdock.exe to a normal folder (for example %LOCALAPPDATA%\\Programs\\MacDo
         let _ = windows::Win32::System::Ole::OleInitialize(None); // drag and drop onto the dock
     }
     let cfg = Config::load();
-    // HideTaskbar now means "hide only during fullscreen", never hide Explorer at startup.
+    // HideTaskbar keeps Explorer's taskbar hidden for the entire MacDock session.
     let hide_taskbar = cfg.hide_taskbar;
     let hwnd = dock::create_window();
     dropfiles::register(hwnd);
@@ -452,7 +445,10 @@ Copy macdock.exe to a normal folder (for example %LOCALAPPDATA%\\Programs\\MacDo
         b.start(); // reserve the top strip before the dock measures the work area
     }
     app.dock.start();
-    // If MacDockMoi starts while a game/video is already fullscreen, apply the same policy immediately.
+    // Hide Explorer's taskbar once MacDock has reserved its screen area. AutoHide remains independent.
+    if app.hide_taskbar {
+        taskbar::hide();
+    }
     app.set_fullscreen(foreground_is_fullscreen());
     if want_widgets {
         widgets::start(); // after the bar and dock reserved their strips, so the work area is final
