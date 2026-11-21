@@ -1,4 +1,4 @@
-//! Temporarily hides the Windows taskbar during fullscreen apps and restores its previous state afterward.
+//! Hides the Windows taskbar for the lifetime of MacDock and restores it on shutdown.
 
 use std::cell::Cell;
 
