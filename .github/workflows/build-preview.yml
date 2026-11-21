@@ -20,11 +20,11 @@ jobs:
           rustup default stable-x86_64-pc-windows-gnu
       - uses: Swatinem/rust-cache@v2
       - name: Build
-        run: cargo build --release --locked
+        run: cargo build --release
       - name: Upload executable
         uses: actions/upload-artifact@v4
         with:
-          name: MacDockMoi-0.3.2-Windows-x64
+          name: MacDockMoi-0.3.3-Windows-x64
           path: target/release/macdock.exe
           if-no-files-found: error
           retention-days: 14
@@ -33,10 +33,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $tag = "v0.3.2"
+          $tag = "v0.3.3"
           gh release view $tag *> $null
           if ($LASTEXITCODE -eq 0) {
             gh release upload $tag target\release\macdock.exe --clobber
           } else {
-            gh release create $tag target\release\macdock.exe --title "MacDockMoi 0.3.2" --notes "Auto-hide enabled by default and menu-bar empty area is click-through."
+            gh release create $tag target\release\macdock.exe --title "MacDockMoi 0.3.3" --notes "User-configurable auto-hide preference and menu-bar click-through."
           }
