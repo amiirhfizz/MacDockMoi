@@ -105,6 +105,12 @@ impl Config {
         b("Genie", &mut c.genie);
         b("IconTiles", &mut c.icon_tiles);
         b("AutoHide", &mut c.auto_hide);
+        // One-time upgrade: existing installs were created with AutoHide=false by default.
+        // Enable it for this update, then preserve the user's choice on later launches.
+        let auto_hide_migrated = v.remove("AutoHideDefaultUpdated").and_then(|x| x.as_bool()).unwrap_or(false);
+        if !auto_hide_migrated {
+            c.auto_hide = true;
+        }
         b("Badges", &mut c.badges);
         b("TrayIcons", &mut c.tray_icons);
         b("AiUsage", &mut c.ai_usage);
@@ -131,6 +137,10 @@ impl Config {
             c.magnify = x.clamp(1.0, 3.0);
         }
         c.extra = v;
+        c.extra.insert("AutoHideDefaultUpdated".into(), json!(true));
+        if !auto_hide_migrated {
+            c.save();
+        }
         c
     }
 
